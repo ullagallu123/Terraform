@@ -6,3 +6,8 @@ terraform {
     }
   }
 }
+
+provider "aws" {
+  profile = "mumbai"
+  region = "ap-south-1"
+}

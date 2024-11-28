@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "git::https://github.com/ullagallu123/Terraform.git//modules/VPC?ref=main"
+  source               = "git::https://github.com/ullagallu123/Terraform.git//modules/VPC?ref=main"
   vpc_cidr             = "192.168.0.0/16"
   environment          = "Dev"
   project_name         = "ECS-SPA"
