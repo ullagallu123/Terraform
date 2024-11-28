@@ -1,5 +1,5 @@
 module "vpc" {
-  source               = "../../modules/VPC"
+  source               = "../../modules/vpc/"
   vpc_cidr             = "192.168.0.0/16"
   environment          = "Dev"
   project_name         = "ECS-SPA"
