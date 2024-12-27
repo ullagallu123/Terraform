@@ -14,6 +14,10 @@ output "db_subnet_ids" {
   value = [for db in aws_subnet.db : db.id]
 }
 
+output "db_subnet_group" {
+  value = aws_db_subnet_group.default[0].name
+}
+
 output "eip" {
   value = [for eip in aws_eip.nat : eip.public_ip]
 }

@@ -1,5 +1,5 @@
 locals {
-  sg_name = "${var.project_name}-${var.environment}"
+  sg_name = "${var.project_name}-${var.environment}-${var.name}"
 }
 
 resource "aws_security_group" "example" {
@@ -31,6 +31,7 @@ resource "aws_security_group" "example" {
 
   tags = merge(
     var.common_tags,
+    var.sg_tags,
     {
       Name = local.sg_name
     }

@@ -13,6 +13,7 @@ resource "aws_vpc" "main" {
     var.vpc_tags,
     {
       Name = local.name
+      "kubernetes.io/cluster/${var.environment}-eks" = "owned"
     }
   )
 }
@@ -43,6 +44,8 @@ resource "aws_subnet" "public" {
     var.public_subnet_tags,
     {
       Name = "${local.name}-public-${split("-", each.key)[2]}"
+      "kubernetes.io/cluster/${var.environment}-eks" = "owned"
+      "kubernetes.io/role/elb" = 1
     }
   )
 }
@@ -59,6 +62,8 @@ resource "aws_subnet" "private" {
     var.private_subnet_tags,
     {
       Name = "${local.name}-private-${split("-", each.key)[2]}"
+      "kubernetes.io/cluster/${var.environment}-eks" = "owned"
+      "kubernetes.io/role/internal-elb"      = 1
     }
   )
 }
@@ -75,6 +80,7 @@ resource "aws_subnet" "db" {
     var.db_subnet_tags,
     {
       Name = "${local.name}-db-${split("-", each.key)[2]}"
+      "kubernetes.io/cluster/${var.environment}-eks" = "owned"
     }
   )
 }
@@ -208,8 +214,30 @@ resource "aws_nat_gateway" "example" {
   depends_on = [aws_internet_gateway.gw]
 }
 
+# resource "aws_route" "private_nat_routes" {
+#   for_each = var.single_nat ? { for key in ["single_nat"] : key => key } : { for az, subnet in aws_subnet.private : az => az }
+
+#   nat_gateway_id = var.single_nat ? aws_nat_gateway.example[0].id : aws_nat_gateway.example[local.az_to_index[each.key]].id
+
+#   route_table_id = var.single_nat ? aws_route_table.private[0].id : aws_route_table.private[local.az_to_index[each.key]].id
+
+#   destination_cidr_block = "0.0.0.0/0"
+#   depends_on             = [aws_nat_gateway.example]
+# }
+
+# resource "aws_route" "db_nat_routes" {
+#   for_each = var.single_nat ? { for key in ["single_nat"] : key => key } : { for az, subnet in aws_subnet.db : az => az }
+
+#   nat_gateway_id = var.single_nat ? aws_nat_gateway.example[0].id : aws_nat_gateway.example[local.az_to_index[each.key]].id
+
+#   route_table_id = var.single_nat ? aws_route_table.db[0].id : aws_route_table.db[local.az_to_index[each.key]].id
+
+#   destination_cidr_block = "0.0.0.0/0"
+#   depends_on             = [aws_nat_gateway.example]
+# }
+
 resource "aws_route" "private_nat_routes" {
-  for_each = var.single_nat ? { for key in ["single_nat"] : key => key } : { for az, subnet in aws_subnet.private : az => az }
+  for_each = var.single_nat || var.per_az_nat ? (var.single_nat ? { for key in ["single_nat"] : key => key } : { for az, subnet in aws_subnet.private : az => az }) : {}
 
   nat_gateway_id = var.single_nat ? aws_nat_gateway.example[0].id : aws_nat_gateway.example[local.az_to_index[each.key]].id
 
@@ -220,7 +248,7 @@ resource "aws_route" "private_nat_routes" {
 }
 
 resource "aws_route" "db_nat_routes" {
-  for_each = var.single_nat ? { for key in ["single_nat"] : key => key } : { for az, subnet in aws_subnet.db : az => az }
+  for_each = var.single_nat || var.per_az_nat ? (var.single_nat ? { for key in ["single_nat"] : key => key } : { for az, subnet in aws_subnet.db : az => az }) : {}
 
   nat_gateway_id = var.single_nat ? aws_nat_gateway.example[0].id : aws_nat_gateway.example[local.az_to_index[each.key]].id
 

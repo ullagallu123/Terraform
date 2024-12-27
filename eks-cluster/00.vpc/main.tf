@@ -1,12 +1,12 @@
 module "vpc" {
   source               = "../../modules/vpc"
-  vpc_cidr             = "192.168.0.0/16"
-  environment          = "Dev"
-  project_name         = "ECS-SPA"
+  vpc_cidr             = "10.1.0.0/16"
+  environment          = var.environment
+  project_name         = var.project_name
   az                   = ["ap-south-1a", "ap-south-1b"]
-  public_subnet_cidr   = ["192.168.1.0/24", "192.168.2.0/24"]
-  private_subnet_cidr  = ["192.168.11.0/24", "192.168.12.0/24"]
-  db_subnet_cidr       = ["192.168.21.0/24", "192.168.22.0/24"]
+  public_subnet_cidr   = ["10.1.1.0/24", "10.1.2.0/24"]
+  private_subnet_cidr  = ["10.1.11.0/24", "10.1.12.0/24"]
+  db_subnet_cidr       = ["10.1.21.0/24", "10.1.22.0/24"]
   per_az_route_tables  = false
   single_nat           = false
   per_az_nat           = false
@@ -15,6 +15,7 @@ module "vpc" {
   common_tags = {
     Developer = "Sivaramakrishna"
     Terraform = true
+    Project   = "EKS"
   }
   vpc_tags = {
     "Component" = "VPC"
@@ -49,5 +50,4 @@ module "vpc" {
   nat_tags = {
     "Component" = "NAT GW"
   }
-
 }

@@ -1,14 +1,14 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "5.78.0"
     }
   }
 }
 
 provider "aws" {
-   profile = "mumbai"
+  profile = "mumbai"
   region  = "ap-south-1"
 }
 
